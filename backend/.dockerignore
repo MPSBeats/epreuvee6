@@ -1,0 +1,17 @@
+# Dossier des modules locaux
+node_modules/
+
+# Logs de debug Node.js
+npm-debug.log*
+*.log
+
+# Les fichiers d'environnements (ne doivent jamais être gravés dans une image)
+.env
+.env.local
+
+# Fichiers de tests (inutiles en production)
+test/
+
+# Fichiers de l'IDE/OS
+.vscode/
+.DS_Store

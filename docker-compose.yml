@@ -4,12 +4,12 @@ services:
   db:
     image: postgres:15-alpine
     container_name: vitalsync-db
-    environment:
-      POSTGRES_USER: vitalsync_user
-      POSTGRES_PASSWORD: vitalsync_password
-      POSTGRES_DB: vitalsync
+    env_file:
+      - .env
     ports:
       - "5432:5432"
+    networks:
+      - vitalsync_net
     volumes:
       - vitalsync_db_data:/var/lib/postgresql/data
     restart: always
@@ -21,8 +21,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgres://vitalsync_user:vitalsync_password@db:5432/vitalsync
-      - NODE_ENV=development
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - NODE_ENV=${NODE_ENV}
+    networks:
+      - vitalsync_net
     depends_on:
       - db
     restart: always
@@ -33,9 +35,15 @@ services:
     container_name: vitalsync-frontend
     ports:
       - "80:80"
+    networks:
+      - vitalsync_net
     depends_on:
       - backend
     restart: always
+
+networks:
+  vitalsync_net:
+    driver: bridge
 
 volumes:
   vitalsync_db_data:
