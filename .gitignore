@@ -1,0 +1,21 @@
+# Dépendances Node.js
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Fichiers d'environnement (secrets, conf locale)
+.env
+.env.local
+
+# Fichiers de build ou cache
+dist/
+build/
+.cache/
+
+# Fichiers OS/IDE
+.DS_Store
+.vscode/
+.idea/
