@@ -8,7 +8,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner }}/vitalsync
 
 jobs:
   # ============================================================
@@ -62,6 +61,9 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calcul du préfixe d'image en minuscules
+        run: echo "IMAGE_PREFIX=$(echo '${{ github.repository_owner }}/vitalsync' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Build & Push de l'image backend
         uses: docker/build-push-action@v5
