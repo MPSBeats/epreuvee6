@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vitalsync-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: vitalsync.local   # Domaine à configurer dans le DNS ou /etc/hosts pour les tests
+      http:
+        paths:
+          # Route principale : toutes les requêtes sont envoyées vers le frontend (Nginx)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vitalsync-frontend-svc
+                port:
+                  number: 80
+
+          # Route API : les requêtes /api/* sont redirigées vers le backend directement
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: vitalsync-backend-svc
+                port:
+                  number: 3000

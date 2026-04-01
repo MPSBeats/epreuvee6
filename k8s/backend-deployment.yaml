@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vitalsync-backend
+  namespace: default
+  labels:
+    app: vitalsync-backend
+spec:
+  # 2 réplicas pour la haute disponibilité : si un pod tombe, l'autre continue de répondre
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vitalsync-backend
+  template:
+    metadata:
+      labels:
+        app: vitalsync-backend
+    spec:
+      containers:
+        - name: backend
+          # Image poussée par la pipeline CI/CD vers GHCR
+          image: ghcr.io/mpsbeats/vitalsync-backend:latest
+          ports:
+            - containerPort: 3000
+
+          # Injection des variables d'environnement depuis le Secret Kubernetes
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: vitalsync-db-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vitalsync-db-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: vitalsync-db-secret
+                  key: POSTGRES_DB
+            - name: NODE_ENV
+              value: "production"
+
+          # Liveness Probe : Kubernetes vérifie que le serveur répond sur /health toutes les 10s
+          # Si 3 échecs consécutifs → le pod est redémarré automatiquement
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15   # Temps d'attente avant la première vérification
+            periodSeconds: 10         # Fréquence de vérification
+            failureThreshold: 3       # Nombre d'échecs avant redémarrage du pod
